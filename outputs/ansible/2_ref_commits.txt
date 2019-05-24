@@ -1,0 +1,57 @@
+***** Analyizing ansible ******
+
+Starting timing for create_repo_object
+
+Starting timing for list_references_branches
+  timing for list_references_branches: 0.057558536529541016
+
+Starting timing for list_references_refs
+  timing for list_references_refs: 1.0392112731933594
+
+Starting timing for get_SHA1_for_branches_tree
+  timing for get_SHA1_for_branches_tree: 2.7163615226745605
+
+Starting timing for get_SHA1_for_branches
+  timing for get_SHA1_for_branches: 2.688096284866333
+
+Starting timing for get_SHA1_for_refs
+  timing for get_SHA1_for_refs: 78.12333250045776
+  timing for create_repo_object: 84.63474178314209
+
+Starting timing for fetching_origin
+  timing for fetching_origin: 23.03796911239624
+
+Starting timing for list_references_branches
+  timing for list_references_branches: 0.07484745979309082
+
+Starting timing for list_references_refs
+  timing for list_references_refs: 0.9325010776519775
+
+Starting timing for get_SHA1_for_branches_tree
+  timing for get_SHA1_for_branches_tree: 2.8030545711517334
+
+Starting timing for get_SHA1_for_branches
+  timing for get_SHA1_for_branches: 2.9262335300445557
+
+Starting timing for get_SHA1_for_refs
+  timing for get_SHA1_for_refs: 76.5241551399231
+
+length of branches: 41, length of references: 100
+[original] length of branches: 41, length of references: 100
+
+No differences detected in branch SHAs
+No differences detected in ref SHAs
+
+Removed directories ['/tmp/clones/ansible']
+
+Starting timing for make_branch_clone
+  timing for make_branch_clone: 3.0250957012176514
+Number of top-level files: 36
+
+Starting timing for make_hash_checkout
+  timing for make_hash_checkout: 3.390143871307373
+Number of top-level files: 33
+
+Starting timing for make_pr_checkout
+  timing for make_pr_checkout: 5.0007781982421875
+Number of top-level files: 27

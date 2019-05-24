@@ -1,0 +1,66 @@
+***** Analyizing ansible ******
+
+Starting timing for create_repo_object
+
+Starting timing for list_references_branches
+Timing for list_references_branches: 0.05913424491882324
+
+Starting timing for list_references_branches
+Timing for list_references_branches: 0.8948535919189453
+
+Starting timing for get_SHA1_for_branches_tree
+Timing for get_SHA1_for_branches_tree: 2.696397542953491
+
+Starting timing for get_SHA1_for_branches
+Timing for get_SHA1_for_branches: 2.6233813762664795
+
+Starting timing for get_SHA1_for_refs
+Timing for get_SHA1_for_refs: 0.7222228050231934
+Timing for create_repo_object: 7.002430200576782
+
+Starting timing for fetching_origin
+Timing for fetching_origin: 33.87497615814209
+
+Starting timing for list_references_branches
+Timing for list_references_branches: 0.07500529289245605
+
+Starting timing for list_references_branches
+Timing for list_references_branches: 1.0922086238861084
+
+Starting timing for get_SHA1_for_branches_tree
+Timing for get_SHA1_for_branches_tree: 3.1819100379943848
+
+Starting timing for get_SHA1_for_branches
+Timing for get_SHA1_for_branches: 2.824531316757202
+
+Starting timing for get_SHA1_for_refs
+Timing for get_SHA1_for_refs: 0.9919130802154541
+
+length of branches: 41, length of references: 0
+
+Changes detected in branches:
+{
+  "devel": [
+    "fca2a4c68b1173ec88a9e0e27e4151378aa56b10",
+    "6e66ea9f78ea05bb6cf500fa7b910e74e8997618"
+  ],
+  "stable-2.8": [
+    "73484808c8d4cbd47a84cfa9371b047a3ca68404",
+    "20d17fe0eae528ea79235be6ded8c9ec454ae1ee"
+  ]
+}
+No differences detected in ref SHAs
+
+Removed directories ['/tmp/clones/ansible', '/tmp/hashes/ansible', '/tmp/pr/ansible']
+
+Starting timing for make_branch_clone
+Timing for make_branch_clone: 3.1992440223693848
+Number of top-level files: 36
+
+Starting timing for make_hash_checkout
+Timing for make_hash_checkout: 3.585969924926758
+Number of top-level files: 33
+
+Starting timing for make_pr_checkout
+Timing for make_pr_checkout: 5.33108115196228
+Number of top-level files: 27
