@@ -71,6 +71,9 @@ def get_hash_dicts(repo):
             ref_list_names.append(this_ref.name)
             ref_list_paths.append(this_ref.path)
 
+    # using commit.hexsha this is the most accepted standard, example:
+    # https://github.com/ansible/ansible/commit/fca2a4c68b1173ec88a9e0e27e4151378aa56b10
+
     # generally, this is not the version of the SHA1 hash that we want
     # TODO: remove or comment out
     bshas = {}
@@ -80,17 +83,15 @@ def get_hash_dicts(repo):
 
     print('length of branches: {}, length of references: {}'.format(len(branch_list), len(ref_list_paths)))
 
-    # this is the most accepted standard, example:
-    # https://github.com/ansible/ansible/commit/fca2a4c68b1173ec88a9e0e27e4151378aa56b10
     bshas = {}
     with time_this('get_SHA1_for_branches'):
         for branch_name in branch_list:
             bshas[branch_name] = getattr(repo.branches, branch_name).commit.hexsha
 
     refshas = {}
-    # with time_this('get_SHA1_for_refs'):
-    #     for ref_name in ref_list_names[:100]:
-    #         refshas[ref_name] = getattr(repo.refs, ref_name).commit.hexsha
+    with time_this('get_SHA1_for_refs'):
+        for ref_name in ref_list_names:
+            refshas[ref_name] = getattr(repo.refs, ref_name).commit.hexsha
 
     return (bshas, refshas)
 

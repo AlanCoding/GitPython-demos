@@ -1,0 +1,56 @@
+***** Analyizing test-playbooks ******
+
+Starting timing for create_repo_object
+
+Starting timing for list_references_branches
+  timing for list_references_branches: 0.00036525726318359375
+
+Starting timing for list_references_refs
+  timing for list_references_refs: 0.0014314651489257812
+
+Starting timing for get_SHA1_for_branches_tree
+  timing for get_SHA1_for_branches_tree: 0.008038997650146484
+length of branches: 4, length of references: 71
+
+Starting timing for get_SHA1_for_branches
+  timing for get_SHA1_for_branches: 0.001798868179321289
+
+Starting timing for get_SHA1_for_refs
+  timing for get_SHA1_for_refs: 0.10355138778686523
+  timing for create_repo_object: 0.11647820472717285
+
+Starting timing for fetching_origin
+  timing for fetching_origin: 0.3371438980102539
+
+Starting timing for list_references_branches
+  timing for list_references_branches: 0.0003712177276611328
+
+Starting timing for list_references_refs
+  timing for list_references_refs: 0.0015327930450439453
+
+Starting timing for get_SHA1_for_branches_tree
+  timing for get_SHA1_for_branches_tree: 0.003656625747680664
+length of branches: 4, length of references: 71
+
+Starting timing for get_SHA1_for_branches
+  timing for get_SHA1_for_branches: 0.0022878646850585938
+
+Starting timing for get_SHA1_for_refs
+  timing for get_SHA1_for_refs: 0.17934465408325195
+
+No differences detected in branch SHAs
+No differences detected in ref SHAs
+
+Removed directories ['/tmp/clones/test_playbooks', '/tmp/hashes/test_playbooks', '/tmp/pr/test_playbooks']
+
+Starting timing for make_branch_clone
+  timing for make_branch_clone: 0.035518646240234375
+Number of top-level files: 3
+
+Starting timing for make_hash_checkout
+  timing for make_hash_checkout: 0.04385662078857422
+Number of top-level files: 37
+
+Starting timing for make_pr_checkout
+  timing for make_pr_checkout: 0.05511760711669922
+Number of top-level files: 68
