@@ -32,7 +32,9 @@ inputs = CASES[case]
 print('***** Analyizing {} ******'.format(case))
 
 
-track_all_refs = False
+track_all_refs = bool('--all-refs' in sys.argv)
+reclone_original = bool('--reclone' in sys.argv)
+full_mirror = bool('--mirror' in sys.argv)
 
 
 mirrors_dir = os.path.join('/tmp', 'mirrors')
@@ -100,13 +102,16 @@ mirror_path = os.path.join(mirrors_dir, case.replace('-', '_'))
 orig_branch_shas, orig_ref_shas = (None, None)
 
 
-if '--reclone' in sys.argv or not os.path.exists(mirror_path):
+if reclone_original or not os.path.exists(mirror_path):
     if os.path.exists(mirror_path):
         shutil.rmtree(mirror_path)
     with time_this('bare_clone_from_github'):
-        # using the mirror option will pick up pull requests
-        # but is this a good idea?
-        repo = Repo.clone_from(inputs['url'], mirror_path, mirror=True, bare=True)
+        if full_mirror:
+            # using the mirror option will pick up pull requests
+            # but is this a good idea?
+            repo = Repo.clone_from(inputs['url'], mirror_path, mirror=True, bare=True)
+        else:
+            repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
 else:
     with time_this('create_repo_object'):
         repo = Repo(mirror_path)
@@ -201,8 +206,17 @@ print('Number of top-level files: {}'.format(len(os.listdir(hash_path))))
 
 
 with time_this('make_pr_checkout'):
-    pr_repo = repo.clone(pr_path, depth=1)
-    pr_repo.remotes.origin.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
+    # Start by making a super dumb clone, just dont ask any questions
+    # TODO: do the depth and single_branch arguments help or hurt??????
+    pr_repo = repo.clone(pr_path, single_branch=True)
+    # depth=1, single_branch=True: 0.3691997528076172
+    # depth=1: 0.34058356285095215
+    # single_branch=True: 0.38864684104919434
+    # 0.6973230838775635
+
+    upstream = pr_repo.create_remote('upstream', inputs['url'])
+    upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
+
     pr_repo.branches.branch_for_job_run.checkout()
 
 
