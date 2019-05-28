@@ -32,6 +32,9 @@ inputs = CASES[case]
 print('***** Analyizing {} ******'.format(case))
 
 
+track_all_refs = False
+
+
 mirrors_dir = os.path.join('/tmp', 'mirrors')
 clones_dir = os.path.join('/tmp', 'clones')
 hashes_dir = os.path.join('/tmp', 'hashes')
@@ -46,54 +49,51 @@ for path in [mirrors_dir, clones_dir, hashes_dir]:
 
 @contextmanager
 def time_this(name=''):
-    try:
-        print('')
-        if name:
-            print('Starting timing for {}'.format(name))
-        start_time = time.time()
-        yield start_time
-    finally:
-        print('  timing for {}: {}'.format(name, time.time() - start_time))
-        return 'foo'
+    print('')
+    if name:
+        print('Starting timing for {}'.format(name))
+    start_time = time.time()
+    yield start_time
+    print('  timing for {}: {}'.format(name, time.time() - start_time))
 
 
-def get_hash_dicts(repo):
+def get_hash_dict(repo, all_refs=False):
     """Return a dictionary of commit hashes of branches, indexed by the branch name
-    as well as a larger dictionary of all reference hashes
+    if all_refs is True, then a dictionary containing all references,
+    not only the branches and tags, will be returned instead
     """
-    with time_this('list_references_branches'):
-        branch_list = [b.name for b in repo.branches]
-
-    with time_this('list_references_refs'):
-        ref_list_names = []
-        ref_list_paths = []
-        for this_ref in repo.refs:
-            ref_list_names.append(this_ref.name)
-            ref_list_paths.append(this_ref.path)
+    if all_refs:
+        display_mode = 'branches_and_tags'
+        main_iterable = repo.refs
+        with time_this('list_references_refs'):
+            name_list = []
+            ref_list_paths = []
+            for this_ref in repo.refs:
+                name_list.append(this_ref.name)
+                ref_list_paths.append(this_ref.path)
+    else:
+        display_mode = 'all_refs'
+        main_iterable = repo.branches
+        with time_this('list_references_branches'):
+            name_list = [b.name for b in main_iterable]
 
     # using commit.hexsha this is the most accepted standard, example:
     # https://github.com/ansible/ansible/commit/fca2a4c68b1173ec88a9e0e27e4151378aa56b10
 
-    # generally, this is not the version of the SHA1 hash that we want
-    # TODO: remove or comment out
-    bshas = {}
-    with time_this('get_SHA1_for_branches_tree'):
-        for branch_name in branch_list:
-            bshas[branch_name] = getattr(repo.branches, branch_name).commit.tree.hexsha
+    print('length of {}: {}'.format(display_mode, len(name_list)))
 
-    print('length of branches: {}, length of references: {}'.format(len(branch_list), len(ref_list_paths)))
+    sha_dict = {}
+    watchout_time = time.time()
+    with time_this('get_SHA1_for_{}'.format(display_mode)):
+        for i, branch_name in enumerate(name_list):
+            sha_dict[branch_name] = getattr(main_iterable, branch_name).commit.hexsha
+            passed_time = time.time() - watchout_time
+            if passed_time > 60.0:
+                print('Processed {} in time of {}'.format(i, passed_time))
+                print('  average time per item of {}'.format(passed_time/i))
+                raise Exception('Fetching list of {} is taking too long.'.format(display_mode))
 
-    bshas = {}
-    with time_this('get_SHA1_for_branches'):
-        for branch_name in branch_list:
-            bshas[branch_name] = getattr(repo.branches, branch_name).commit.hexsha
-
-    refshas = {}
-    with time_this('get_SHA1_for_refs'):
-        for ref_name in ref_list_names:
-            refshas[ref_name] = getattr(repo.refs, ref_name).commit.hexsha
-
-    return (bshas, refshas)
+    return sha_dict
 
 
 mirror_path = os.path.join(mirrors_dir, case.replace('-', '_'))
@@ -110,13 +110,13 @@ if '--reclone' in sys.argv or not os.path.exists(mirror_path):
 else:
     with time_this('create_repo_object'):
         repo = Repo(mirror_path)
-        orig_branch_shas, orig_ref_shas = get_hash_dicts(repo)
+        orig_branch_shas = get_hash_dict(repo, all_refs=track_all_refs)
     with time_this('fetching_origin'):
         # repo.remotes.origin.fetch('+refs/heads/*:refs/heads/*')
         repo.remotes.origin.fetch('+refs/*:refs/*')
 
 
-branch_shas, ref_shas = get_hash_dicts(repo)
+branch_shas = get_hash_dict(repo, all_refs=track_all_refs)
 # not the right time to gather this information, redundant with prints in method
 # print('')
 # print('length of branches: {}, length of references: {}'.format(len(branch_shas), len(ref_shas)))
@@ -139,20 +139,13 @@ print('')
 
 if orig_branch_shas is not None:
     branch_diff = diff_dicts(orig_branch_shas, branch_shas)
-    ref_diff = diff_dicts(orig_ref_shas, ref_shas)
 
     if branch_diff:
-        print('Changes detected in branches:')
+        print('Changes detected in refs/tags/branches:')
         print(json.dumps(branch_diff, indent=2))
     else:
         print('No differences detected in branch SHAs')
 
-
-    if ref_diff:
-        print('Changes detected in refs:')
-        print(json.dumps(ref_diff, indent=2))
-    else:
-        print('No differences detected in ref SHAs')
 else:
     print('This is a first clone, so state comparisions are not done')
 

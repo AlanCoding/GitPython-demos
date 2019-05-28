@@ -1,0 +1,51 @@
+***** Analyizing ansible ******
+
+Starting timing for create_repo_object
+
+Starting timing for list_references_branches
+  timing for list_references_branches: 6.842613220214844e-05
+length of all_refs: 41
+
+Starting timing for get_SHA1_for_all_refs
+  timing for get_SHA1_for_all_refs: 0.012059450149536133
+  timing for create_repo_object: 0.07313871383666992
+
+Starting timing for fetching_origin
+  timing for fetching_origin: 44.11947774887085
+
+Starting timing for list_references_branches
+  timing for list_references_branches: 5.817413330078125e-05
+length of all_refs: 41
+
+Starting timing for get_SHA1_for_all_refs
+  timing for get_SHA1_for_all_refs: 0.013122081756591797
+
+Changes detected in refs/tags/branches:
+{
+  "devel": [
+    "6e66ea9f78ea05bb6cf500fa7b910e74e8997618",
+    "4490c0ba5134daffd913a2fc61c3e3f4a341e485"
+  ],
+  "stable-2.6": [
+    "fb96b88122465551ff23b56017da58583d4ca2eb",
+    "03bab95231ef2f12e273f91ce3538e382cf3e69b"
+  ],
+  "stable-2.8": [
+    "20d17fe0eae528ea79235be6ded8c9ec454ae1ee",
+    "4ef102ae79e5c6d3b6db23abc9797b514822742b"
+  ]
+}
+
+Removed directories ['/tmp/pr/ansible']
+
+Starting timing for make_branch_clone
+  timing for make_branch_clone: 3.472566604614258
+Number of top-level files: 36
+
+Starting timing for make_hash_checkout
+  timing for make_hash_checkout: 3.262646436691284
+Number of top-level files: 33
+
+Starting timing for make_pr_checkout
+  timing for make_pr_checkout: 5.070430517196655
+Number of top-level files: 27
