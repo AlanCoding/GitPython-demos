@@ -70,3 +70,11 @@ Somewhat deficient testing:
 
  - need a large branch/tag count repo
  - subrepos
+
+### Findings
+
+In the Ansible test case, checking out a SHA-1 in a non-default branch
+was verified. f511bec4ff2d0371e5a90e5da2ea8887f5ff1ac2 is present in
+stable-2.8, but not in devel.
+
+timing was 6.47, as opposed to older commit which took 4.11

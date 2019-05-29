@@ -22,7 +22,11 @@ CASES = {
     'ansible': {
         'url': 'https://github.com/ansible/ansible.git',
         'branch': 'stable-2.5',
-        'hash': '5400a06ac45fdd165c195a9369e93acece4b4c96',
+        # from 2.3, in all branches: 5400a06ac45fdd165c195a9369e93acece4b4c96
+        # has 33 top level files
+        # stable-2.8 head f511bec4ff2d0371e5a90e5da2ea8887f5ff1ac2
+        # as 27 top level files
+        'hash': 'f511bec4ff2d0371e5a90e5da2ea8887f5ff1ac2',
         'PR': 'pull/56903/head'
     },
 }
@@ -187,7 +191,7 @@ print('Number of top-level files: {}'.format(len(os.listdir(clone_path))))
 
 # NOTE: this is purely a local action, would need no git module action
 with time_this('make_hash_checkout'):
-    hash_repo = repo.clone(hash_path, branch=inputs['branch'], single_branch=True)
+    hash_repo = repo.clone(hash_path)
     # verify that clone is clean-ish: hash_repo.head.is_detached
     # tends to work pretty reliably, so I stopped testing that
     head_for_hash = hash_repo.create_head('branch_for_job_run', inputs['hash'])
