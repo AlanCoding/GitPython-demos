@@ -6,6 +6,7 @@ import os
 from contextlib import contextmanager
 import shutil
 import json
+import subprocess
 
 
 assert len(sys.argv) >= 2, 'You need to pass the case name to investigate'
@@ -27,7 +28,9 @@ CASES = {
         # stable-2.8 head f511bec4ff2d0371e5a90e5da2ea8887f5ff1ac2
         # as 27 top level files
         'hash': 'f511bec4ff2d0371e5a90e5da2ea8887f5ff1ac2',
-        'PR': 'pull/56903/head'
+        # 2.9: pull/56903/head
+        # 2.3: pull/50671/head, expect 33 top level files
+        'PR': 'pull/50671/head'
     },
 }
 
@@ -36,7 +39,7 @@ inputs = CASES[case]
 print('***** Analyizing {} ******'.format(case))
 
 
-track_all_refs = bool('--all-refs' in sys.argv)
+track_all_refs = True  # works for bare clones, not mirror clones
 reclone_original = bool('--reclone' in sys.argv)
 full_mirror = bool('--mirror' in sys.argv)
 
@@ -106,6 +109,28 @@ mirror_path = os.path.join(mirrors_dir, case.replace('-', '_'))
 orig_branch_shas, orig_ref_shas = (None, None)
 
 
+def playbook_update(path, url, branch=None, refspec=None):
+    extra_vars = {
+        'project_path': path,
+        'scm_url': url,
+        'force': 'False',
+        'scm_clean': 'False'
+    }
+    if branch is None:
+        extra_vars['bare'] = 'True'
+    else:
+        extra_vars['scm_branch'] = branch
+    if refspec:
+        extra_vars['refspec'] = refspec
+    args = ['ansible-playbook', 'checkout.yml', '--connection', 'local', '-i', 'localhost,']
+    for k, v in extra_vars.items():
+        args.extend(['-e', '{}={}'.format(k, v)])
+    print('args')
+    # print(args)
+    print(' '.join(args))
+    subprocess.run(' '.join(args), shell=True)
+
+
 if reclone_original or not os.path.exists(mirror_path):
     if os.path.exists(mirror_path):
         shutil.rmtree(mirror_path)
@@ -115,23 +140,24 @@ if reclone_original or not os.path.exists(mirror_path):
             # but is this a good idea?
             repo = Repo.clone_from(inputs['url'], mirror_path, mirror=True, bare=True)
         else:
-            # NOTE: the bare repo clone is replacable by git module
-            repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
+            playbook_update(mirror_path, inputs['url'])
+            repo = Repo(mirror_path)
+            # repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
 else:
     with time_this('create_repo_object'):
         repo = Repo(mirror_path)
         orig_branch_shas = get_hash_dict(repo, all_refs=track_all_refs)
     with time_this('fetching_origin'):
+        playbook_update(mirror_path, inputs['url'])
         # repo.remotes.origin.fetch('+refs/heads/*:refs/heads/*')
-        repo.remotes.origin.fetch('+refs/*:refs/*')
+        # repo.remotes.origin.fetch('+refs/*:refs/*')
+        repo = Repo(mirror_path)  # not sure if this is needed
 
 
 branch_shas = get_hash_dict(repo, all_refs=track_all_refs)
-# not the right time to gather this information, redundant with prints in method
-# print('')
-# print('length of branches: {}, length of references: {}'.format(len(branch_shas), len(ref_shas)))
-# if orig_branch_shas is not None:
-#     print('[original] length of branches: {}, length of references: {}'.format(len(orig_branch_shas), len(orig_ref_shas)))
+
+print('branch names')
+print(list(branch_shas.keys()))
 
 
 # compare the new SHAs to the old to verify that the mirrored fetch is working
@@ -217,13 +243,19 @@ with time_this('make_pr_checkout'):
     with time_this('make_pr_checkout_clone_time'):
         pr_repo = repo.clone(pr_path)
 
-    # NOTE: the combination of these 2 steps is replacable by git module
     with time_this('make_pr_checkout_fetch_time'):
-        upstream = pr_repo.create_remote('upstream', inputs['url'])
-        upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
+        playbook_update(
+            pr_path, inputs['url'],
+            refspec='refs/{}:branch_for_job_run'.format(inputs['PR']),
+            branch='branch_for_job_run'
+        )
+        # old method, doing same thing with library
+        # upstream = pr_repo.create_remote('upstream', inputs['url'])
+        # upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
 
-    with time_this('make_pr_checkout_checkout_time'):
-        pr_repo.branches.branch_for_job_run.checkout()
+    # also part of old method
+    # with time_this('make_pr_checkout_checkout_time'):
+    #     pr_repo.branches.branch_for_job_run.checkout()
 
 print('Number of top-level files: {}'.format(len(os.listdir(pr_path))))
 
