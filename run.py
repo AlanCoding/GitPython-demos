@@ -42,6 +42,7 @@ print('***** Analyizing {} ******'.format(case))
 track_all_refs = True  # works for bare clones, not mirror clones
 reclone_original = bool('--reclone' in sys.argv)
 full_mirror = bool('--mirror' in sys.argv)
+use_playbook = bool('--python' not in sys.argv)
 
 
 mirrors_dir = os.path.join('/tmp', 'mirrors')
@@ -140,18 +141,25 @@ if reclone_original or not os.path.exists(mirror_path):
             # but is this a good idea?
             repo = Repo.clone_from(inputs['url'], mirror_path, mirror=True, bare=True)
         else:
-            playbook_update(mirror_path, inputs['url'])
-            repo = Repo(mirror_path)
-            # repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
+            if use_playbook:
+                playbook_update(mirror_path, inputs['url'])
+                repo = Repo(mirror_path)
+            else:
+                repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
 else:
     with time_this('create_repo_object'):
         repo = Repo(mirror_path)
         orig_branch_shas = get_hash_dict(repo, all_refs=track_all_refs)
     with time_this('fetching_origin'):
-        playbook_update(mirror_path, inputs['url'])
-        # repo.remotes.origin.fetch('+refs/heads/*:refs/heads/*')
-        # repo.remotes.origin.fetch('+refs/*:refs/*')
-        repo = Repo(mirror_path)  # not sure if this is needed
+        if use_playbook:
+            # TODO: this does not take a prune option, that's a problem
+            playbook_update(mirror_path, inputs['url'])
+            repo = Repo(mirror_path)  # not sure if this is needed
+        else:
+            # This is the refmap needed for the bare clones, in other words, always
+            repo.remotes.origin.fetch('+refs/heads/*:refs/heads/*', prune=True)
+            # This is the refmap needed for the mirror clones
+            # repo.remotes.origin.fetch('+refs/*:refs/*', prune=True)
 
 
 branch_shas = get_hash_dict(repo, all_refs=track_all_refs)
@@ -168,6 +176,10 @@ def diff_dicts(first, second):
             ret[key] = value
         elif first[key] != value:
             ret[key] = (first[key], value)
+    for key in first.keys():
+        if key not in second:
+            # a branch was pruned!
+            ret[key] = '-{}'.format(first[key])
     return ret
 
 
@@ -205,6 +217,8 @@ if removed:
 
 
 # NOTE: this is purely a local action, would need no git module action
+# NOTE: in final implementation, we will have to check out a specific
+# commit for that branch, because of reference tracking
 with time_this('make_branch_clone'):
     cloned_repo = repo.clone(clone_path, branch=inputs['branch'], depth=1, single_branch=True)
 
@@ -243,19 +257,22 @@ with time_this('make_pr_checkout'):
     with time_this('make_pr_checkout_clone_time'):
         pr_repo = repo.clone(pr_path)
 
-    with time_this('make_pr_checkout_fetch_time'):
-        playbook_update(
-            pr_path, inputs['url'],
-            refspec='refs/{}:branch_for_job_run'.format(inputs['PR']),
-            branch='branch_for_job_run'
-        )
-        # old method, doing same thing with library
-        # upstream = pr_repo.create_remote('upstream', inputs['url'])
-        # upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
+    if use_playbook:
+        with time_this('make_pr_checkout_fetch_time'):
+            playbook_update(
+                pr_path, inputs['url'],
+                refspec='refs/{}:branch_for_job_run'.format(inputs['PR']),
+                branch='branch_for_job_run'
+            )
+    else:
+        # old method
+        with time_this('make_pr_checkout_fetch_time'):
+            upstream = pr_repo.create_remote('upstream', inputs['url'])
+            upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
 
-    # also part of old method
-    # with time_this('make_pr_checkout_checkout_time'):
-    #     pr_repo.branches.branch_for_job_run.checkout()
+        # a second part of the old method
+        with time_this('make_pr_checkout_checkout_time'):
+            pr_repo.branches.branch_for_job_run.checkout()
 
 print('Number of top-level files: {}'.format(len(os.listdir(pr_path))))
 
