@@ -1,0 +1,78 @@
+***** Analyizing ansible ******
+
+Starting timing for bare_clone_from_github
+  timing for bare_clone_from_github: 19.676474809646606
+
+Starting timing for list_references_branches
+  timing for list_references_branches: 0.00016689300537109375
+length of all_refs: 41
+
+Starting timing for get_SHA1_for_all_refs
+  timing for get_SHA1_for_all_refs: 0.014617681503295898
+
+This is a first clone, so state comparisions are not done
+
+Removed directories ['/tmp/clones/ansible', '/tmp/hashes/ansible']
+
+Starting timing for make_branch_clone
+  timing for make_branch_clone: 2.993452310562134
+Number of top-level files: 36
+
+Starting timing for make_hash_checkout
+  timing for make_hash_checkout: 4.1359641551971436
+Number of top-level files: 33
+
+Starting timing for make_pr_checkout0
+
+Starting timing for make_pr_checkout0_clone_time
+  timing for make_pr_checkout0_clone_time: 4.158077955245972
+
+Starting timing for make_pr_checkout0_fetch_time
+  timing for make_pr_checkout0_fetch_time: 2.0287258625030518
+
+Starting timing for make_pr_checkout0_checkout_time
+  timing for make_pr_checkout0_checkout_time: 0.29522275924682617
+  timing for make_pr_checkout0: 6.483470678329468
+Number of top-level files: 27
+
+Starting timing for make_pr_checkout1
+
+Starting timing for make_pr_checkout1_clone_time
+  timing for make_pr_checkout1_clone_time: 4.613970756530762
+
+Starting timing for make_pr_checkout1_fetch_time
+  timing for make_pr_checkout1_fetch_time: 2.2071762084960938
+
+Starting timing for make_pr_checkout1_checkout_time
+  timing for make_pr_checkout1_checkout_time: 0.3582789897918701
+  timing for make_pr_checkout1: 7.180121183395386
+Number of top-level files: 27
+
+Starting timing for make_pr_checkout2
+
+Starting timing for make_pr_checkout2_clone_time
+  timing for make_pr_checkout2_clone_time: 4.996077060699463
+
+Starting timing for make_pr_checkout2_fetch_time
+  timing for make_pr_checkout2_fetch_time: 3.5560176372528076
+
+Starting timing for make_pr_checkout2_checkout_time
+  timing for make_pr_checkout2_checkout_time: 0.29170870780944824
+  timing for make_pr_checkout2: 8.844265937805176
+Number of top-level files: 27
+
+Starting timing for make_pr_checkout3
+
+Starting timing for make_pr_checkout3_clone_time
+  timing for make_pr_checkout3_clone_time: 4.449956655502319
+
+Starting timing for make_pr_checkout3_fetch_time
+  timing for make_pr_checkout3_fetch_time: 2.3648977279663086
+
+Starting timing for make_pr_checkout3_checkout_time
+  timing for make_pr_checkout3_checkout_time: 0.3452773094177246
+  timing for make_pr_checkout3: 7.160769939422607
+Number of top-level files: 27
+
+Starting timing for make_pr_checkout4
+  timing for make_pr_checkout4: 23.417669534683228

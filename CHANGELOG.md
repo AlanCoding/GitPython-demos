@@ -12,9 +12,14 @@
    for the PR scenario
  - Changed from mirror cloning back to simple bare cloning
    - added logic to PR checkout that will pull from remote remote, not "local remote"
+ - Investigated performance of options for obtaining a checkout of a PR reference
+   it was found that a local clone from the bare repo as a pre-step provided
+   a meaningful performance improvement
 
 ### Roadmap
 
+ - Replace the cloning actions with a subprocess call to a playbook
+   using the git module
  - Add a step that tests whether or not the ref (arbitrary ref) is present
     - if not present, the default branch is cloned into the tmp dir
       THIS IS HIGHLY CONTROVERSIAL

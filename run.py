@@ -111,6 +111,7 @@ if reclone_original or not os.path.exists(mirror_path):
             # but is this a good idea?
             repo = Repo.clone_from(inputs['url'], mirror_path, mirror=True, bare=True)
         else:
+            # NOTE: the bare repo clone is replacable by git module
             repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
 else:
     with time_this('create_repo_object'):
@@ -173,6 +174,7 @@ if removed:
     print('Removed directories {}'.format(removed))
 
 
+# NOTE: this is purely a local action, would need no git module action
 with time_this('make_branch_clone'):
     cloned_repo = repo.clone(clone_path, branch=inputs['branch'], depth=1, single_branch=True)
 
@@ -183,6 +185,7 @@ with time_this('make_branch_clone'):
 print('Number of top-level files: {}'.format(len(os.listdir(clone_path))))
 
 
+# NOTE: this is purely a local action, would need no git module action
 with time_this('make_hash_checkout'):
     hash_repo = repo.clone(hash_path, branch=inputs['branch'], single_branch=True)
     # verify that clone is clean-ish: hash_repo.head.is_detached
@@ -205,22 +208,51 @@ with time_this('make_hash_checkout'):
 print('Number of top-level files: {}'.format(len(os.listdir(hash_path))))
 
 
-with time_this('make_pr_checkout'):
-    # Start by making a super dumb clone, just dont ask any questions
-    # TODO: do the depth and single_branch arguments help or hurt??????
-    pr_repo = repo.clone(pr_path, single_branch=True)
-    # depth=1, single_branch=True: 0.3691997528076172
-    # depth=1: 0.34058356285095215
-    # single_branch=True: 0.38864684104919434
-    # 0.6973230838775635
+for i in range(4):
+    path = '{}{}'.format(pr_path, i)
+    if os.path.exists(path):
+        shutil.rmtree(path)
+        removed.append(path)
 
-    upstream = pr_repo.create_remote('upstream', inputs['url'])
-    upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
 
+    with time_this('make_pr_checkout{}'.format(i)):
+        # Start by making a super dumb clone, just dont ask any questions
+        # TODO: do the depth and single_branch arguments help or hurt??????
+        kwargs = {
+            0: {'depth': 1, 'single_branch': True},
+            1: {'depth': 1},
+            2: {'single_branch': True},
+            3: {}
+        }[i]
+        with time_this('make_pr_checkout{}_clone_time'.format(i)):
+            pr_repo = repo.clone(path, **kwargs)
+        # depth=1, single_branch=True: 0.3691997528076172
+        # depth=1: 0.34058356285095215
+        # single_branch=True: 0.38864684104919434
+        # 0.6973230838775635
+
+        # NOTE: the combination of these 2 steps is replacable by git module
+        with time_this('make_pr_checkout{}_fetch_time'.format(i)):
+            upstream = pr_repo.create_remote('upstream', inputs['url'])
+            upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
+
+        with time_this('make_pr_checkout{}_checkout_time'.format(i)):
+            pr_repo.branches.branch_for_job_run.checkout()
+
+
+    print('Number of top-level files: {}'.format(len(os.listdir(path))))
+
+
+# there appears to be no more direct way to do this
+with time_this('make_pr_checkout4'):
+    path = '{}4'.format(pr_path, 4)
+    if os.path.exists(path):
+        shutil.rmtree(path)
+        removed.append(path)
+    pr_repo = Repo.clone_from(inputs['url'], path)
+    pr_repo.remotes.origin.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
     pr_repo.branches.branch_for_job_run.checkout()
 
-
-print('Number of top-level files: {}'.format(len(os.listdir(pr_path))))
 
 print('')
 
