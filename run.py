@@ -281,6 +281,7 @@ def make_tmp_dir(case, name, some_ref):
                         # maybe this works, not really sure
                         # NOTE: this talks to remote (or it will, if it works)
                         repo.remotes.origin.fetch(refspec_conversion)
+
                     concrete_branch = getattr(repo.branches, concrete_branch_name)
 
             with time_this('make_{}_checkout_checkout_time'.format(name)):
@@ -314,10 +315,8 @@ def make_tmp_dir(case, name, some_ref):
                         # also note, we're talking to remote in python code
                         upstream = this_repo.create_remote('upstream', inputs['url'])
                         upstream.fetch(refspec_conversion)
-                        concrete_branch = getattr(this_repo.branches, concrete_branch_name)
 
-                    with time_this('make_{}_checkout_checkout_time'.format(name)):
-                        concrete_branch = getattr(this_repo.branches, concrete_branch_name)
+                concrete_branch = getattr(this_repo.branches, concrete_branch_name)
 
             elif ref_type == 'commit':
                 concrete_branch = this_repo.create_head(concrete_branch_name, some_ref)
