@@ -18,6 +18,11 @@
  - Replace the cloning actions with a subprocess call to a playbook
    using the git module
  - added refspec as parameter to git module bare cloning
+ - investigate timing of making a new head, and then cloning
+
+### Pending
+
+ - add a case for tags
 
 ### Abandoned
 

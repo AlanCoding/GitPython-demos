@@ -7,6 +7,7 @@ from contextlib import contextmanager
 import shutil
 import json
 import subprocess
+from uuid import uuid4
 
 
 assert len(sys.argv) >= 2, 'You need to pass the case name to investigate'
@@ -43,6 +44,7 @@ track_all_refs = True  # works for bare clones, not mirror clones
 reclone_original = bool('--reclone' in sys.argv)
 full_mirror = bool('--mirror' in sys.argv)
 use_playbook = bool('--python' not in sys.argv)
+clone_in_tmp = bool('--clone-in-tmp' in sys.argv)
 
 
 mirrors_dir = os.path.join('/tmp', 'mirrors')
@@ -72,36 +74,38 @@ def get_hash_dict(repo, all_refs=False):
     if all_refs is True, then a dictionary containing all references,
     not only the branches and tags, will be returned instead
     """
-    if all_refs:
-        display_mode = 'branches_and_tags'
-        main_iterable = repo.refs
-        with time_this('list_references_refs'):
-            name_list = []
-            ref_list_paths = []
-            for this_ref in repo.refs:
-                name_list.append(this_ref.name)
-                ref_list_paths.append(this_ref.path)
-    else:
-        display_mode = 'all_refs'
-        main_iterable = repo.branches
-        with time_this('list_references_branches'):
-            name_list = [b.name for b in main_iterable]
-
-    # using commit.hexsha this is the most accepted standard, example:
-    # https://github.com/ansible/ansible/commit/fca2a4c68b1173ec88a9e0e27e4151378aa56b10
-
-    print('length of {}: {}'.format(display_mode, len(name_list)))
-
     sha_dict = {}
-    watchout_time = time.time()
-    with time_this('get_SHA1_for_{}'.format(display_mode)):
-        for i, branch_name in enumerate(name_list):
-            sha_dict[branch_name] = getattr(main_iterable, branch_name).commit.hexsha
+
+    if all_refs:
+        display_mode = 'all_local_refs'
+    else:
+        display_mode = 'branches_only'
+
+    with time_this('list_references_{}'.format(display_mode)):
+
+        if all_refs:
+            main_iterable = repo.refs
+        else:
+            main_iterable = repo.branches
+
+        name_list = []
+        # ref_list_paths = []
+        watchout_time = time.time()
+        for i, this_ref in enumerate(main_iterable):
+            name_list.append(this_ref.name)
+            # ref_list_paths.append(this_ref.path)
+            sha_dict[this_ref.name] = this_ref.commit.hexsha
             passed_time = time.time() - watchout_time
             if passed_time > 60.0:
                 print('Processed {} in time of {}'.format(i, passed_time))
                 print('  average time per item of {}'.format(passed_time/i))
                 raise Exception('Fetching list of {} is taking too long.'.format(display_mode))
+
+
+    # using commit.hexsha this is the most accepted standard, example:
+    # https://github.com/ansible/ansible/commit/fca2a4c68b1173ec88a9e0e27e4151378aa56b10
+
+    print('length of {}: {}'.format(display_mode, len(name_list)))
 
     return sha_dict
 
@@ -110,18 +114,18 @@ mirror_path = os.path.join(mirrors_dir, case.replace('-', '_'))
 orig_branch_shas, orig_ref_shas = (None, None)
 
 
-def playbook_update(path, url, branch=None, refspec=None):
+def playbook_update(path, url, bare=None, branch=None, refspec=None):
     extra_vars = {
         'project_path': path,
         'scm_url': url,
         'force': 'False',
         'scm_clean': 'False'
     }
-    if branch is None:
-        extra_vars['bare'] = 'True'
-    else:
+    if bare is not None:
+        extra_vars['bare'] = str(bare)
+    if branch is not None:
         extra_vars['scm_branch'] = branch
-    if refspec:
+    if refspec is not None:
         extra_vars['refspec'] = refspec
     args = ['ansible-playbook', 'checkout.yml', '--connection', 'local', '-i', 'localhost,']
     for k, v in extra_vars.items():
@@ -141,7 +145,7 @@ if reclone_original or not os.path.exists(mirror_path):
             repo = Repo.clone_from(inputs['url'], mirror_path, mirror=True, bare=True)
         else:
             if use_playbook:
-                playbook_update(mirror_path, inputs['url'], refspec='+refs/heads/*:refs/heads/*')
+                playbook_update(mirror_path, inputs['url'], bare=True, refspec='+refs/heads/*:refs/heads/*')
                 repo = Repo(mirror_path)
             else:
                 repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
@@ -153,7 +157,7 @@ else:
         if use_playbook:
             # TODO: this does not take a prune option, that's a problem
             # filed: https://github.com/ansible/ansible/issues/57143
-            playbook_update(mirror_path, inputs['url'], refspec='+refs/heads/*:refs/heads/*')
+            playbook_update(mirror_path, inputs['url'], bare=True, refspec='+refs/heads/*:refs/heads/*')
             repo = Repo(mirror_path)  # not sure if this is needed
         else:
             # This is the refmap needed for the bare clones, in other words, always
@@ -232,11 +236,21 @@ print('Number of top-level files: {}'.format(len(os.listdir(clone_path))))
 
 # NOTE: this is purely a local action, would need no git module action
 with time_this('make_hash_checkout'):
-    hash_repo = repo.clone(hash_path)
-    # verify that clone is clean-ish: hash_repo.head.is_detached
-    # tends to work pretty reliably, so I stopped testing that
-    head_for_hash = hash_repo.create_head('branch_for_job_run', inputs['hash'])
-    head_for_hash.checkout()
+    use_hash = inputs['hash']
+    # use the short version of the commit instead
+    # use_hash = use_hash[:8]
+    if not clone_in_tmp:
+        commit = repo.commit(use_hash)
+        tmp_branch_name = 'awx_internal/{}'.format(uuid4())
+        tmp_branch = repo.create_head(tmp_branch_name, commit)
+        hash_repo = repo.clone(hash_path, branch=tmp_branch, depth=1, single_branch=True)
+        repo.delete_head(tmp_branch, force=True)
+    else:
+        hash_repo = repo.clone(hash_path)
+        # verify that clone is clean-ish: hash_repo.head.is_detached
+        # tends to work pretty reliably, so I stopped testing that
+        head_for_hash = hash_repo.create_head('branch_for_job_run', inputs['hash'])
+        head_for_hash.checkout()
 
     # this does not work
     # print(hash_repo.head.is_detached)
@@ -254,26 +268,45 @@ print('Number of top-level files: {}'.format(len(os.listdir(hash_path))))
 
 
 with time_this('make_pr_checkout'):
-    # Start by making a super dumb clone, just dont ask any questions
-    with time_this('make_pr_checkout_clone_time'):
-        pr_repo = repo.clone(pr_path)
+    if not clone_in_tmp:
+        tmp_branch_name = 'awx_internal/{}'.format(uuid4())
 
-    if use_playbook:
-        with time_this('make_pr_checkout_fetch_time'):
-            playbook_update(
-                pr_path, inputs['url'],
-                refspec='refs/{}:branch_for_job_run'.format(inputs['PR']),
-                branch='branch_for_job_run'
-            )
+        if use_playbook:
+            with time_this('make_pr_checkout_fetch_time'):
+                playbook_update(
+                    mirror_path, inputs['url'],
+                    bare=True,
+                    refspec='refs/{}:{}'.format(inputs['PR'], tmp_branch_name),
+                )
+
+            with time_this('make_pr_checkout_checkout_time'):
+                tmp_branch = getattr(repo.branches, tmp_branch_name)
+                pr_repo = repo.clone(pr_path, branch=tmp_branch, depth=1, single_branch=True)
+                repo.delete_head(tmp_branch, force=True)
+
+        else:
+            raise Exception('logic for this is not written.')
     else:
-        # old method
-        with time_this('make_pr_checkout_fetch_time'):
-            upstream = pr_repo.create_remote('upstream', inputs['url'])
-            upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
+        # Start by making a super dumb clone, just dont ask any questions
+        with time_this('make_pr_checkout_clone_time'):
+            pr_repo = repo.clone(pr_path)
 
-        # a second part of the old method
-        with time_this('make_pr_checkout_checkout_time'):
-            pr_repo.branches.branch_for_job_run.checkout()
+        if use_playbook:
+            with time_this('make_pr_checkout_fetch_time'):
+                playbook_update(
+                    pr_path, inputs['url'],
+                    refspec='refs/{}:branch_for_job_run'.format(inputs['PR']),
+                    branch='branch_for_job_run'
+                )
+        else:
+            # old method
+            with time_this('make_pr_checkout_fetch_time'):
+                upstream = pr_repo.create_remote('upstream', inputs['url'])
+                upstream.fetch('refs/{}:branch_for_job_run'.format(inputs['PR']))
+
+            # a second part of the old method
+            with time_this('make_pr_checkout_checkout_time'):
+                pr_repo.branches.branch_for_job_run.checkout()
 
 print('Number of top-level files: {}'.format(len(os.listdir(pr_path))))
 

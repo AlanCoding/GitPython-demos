@@ -78,3 +78,21 @@ was verified. f511bec4ff2d0371e5a90e5da2ea8887f5ff1ac2 is present in
 stable-2.8, but not in devel.
 
 timing was 6.47, as opposed to older commit which took 4.11
+
+Also, behavior if commit does not exist verified:
+
+```
+print('commit that does not exist')
+import traceback
+try:
+    # commit is from this repo, so not in any target repo
+    repo.commit('dc587989c3c36560148429238bd19ac51163f6c6')
+except Exception:
+    traceback.print_exc()
+```
+
+gives
+
+> ValueError: SHA b'dc587989c3c36560148429238bd19ac51163f6c6' could not be resolved, git returned: b'dc587989c3c36560148429238bd19ac51163f6c6 missing'
+
+This is perfectly fine.

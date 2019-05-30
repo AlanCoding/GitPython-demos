@@ -131,3 +131,33 @@ So the bottom line is that we shouldn't worry too much about what parameters
 are fed into the local clone (which favors option 3 for simplicity's sake),
 BUT it is very important that we first perform the local clone to provide
 a reference before fetching from remote and checking out the reference.
+
+#### Early Clone
+
+A different pattern was tested here. For the case of commit hashes and
+references (which were not prefetched) was previously:
+
+ - Clone the bare repo to the tmpdir without restrictions
+ - Make a new branch for the hash or the reference, pulling from remote if needed
+
+This actually winds up being kind of complicated, and there are some
+very obvious performance problems with it (all of the index is copied when
+only one ref is needed).
+
+New method was investigated that goes like:
+
+ - Create new head in the bare repo, named awx_internal/2834895892983983 (randomized)
+ - Make a shallow clone of just that temporary reference to the tmp dir
+
+This is found to have clearly better performance, particularly when pulling
+from a remote. At the end of the process, the temporary ref is deleted.
+This reduced the PR checkout times from like 23 seconds to 6 seconds.
+
+This method also has benefits in congruency between the different cases.
+Ultimately, both tags and branches will need to be checked out via a specific
+SHA-1 hash, so this method is the only way we can do anything like a
+shallow clone.
+
+Presumably an even better option exists via `--separate-data-dir`, but support
+for this was only added in Ansible 2.7 (and git itself has some version
+limitations for it).
