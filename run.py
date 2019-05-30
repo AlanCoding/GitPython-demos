@@ -126,8 +126,7 @@ def playbook_update(path, url, branch=None, refspec=None):
     args = ['ansible-playbook', 'checkout.yml', '--connection', 'local', '-i', 'localhost,']
     for k, v in extra_vars.items():
         args.extend(['-e', '{}={}'.format(k, v)])
-    print('args')
-    # print(args)
+    print('')
     print(' '.join(args))
     subprocess.run(' '.join(args), shell=True)
 
@@ -142,7 +141,7 @@ if reclone_original or not os.path.exists(mirror_path):
             repo = Repo.clone_from(inputs['url'], mirror_path, mirror=True, bare=True)
         else:
             if use_playbook:
-                playbook_update(mirror_path, inputs['url'])
+                playbook_update(mirror_path, inputs['url'], refspec='+refs/heads/*:refs/heads/*')
                 repo = Repo(mirror_path)
             else:
                 repo = Repo.clone_from(inputs['url'], mirror_path, bare=True)
@@ -153,12 +152,14 @@ else:
     with time_this('fetching_origin'):
         if use_playbook:
             # TODO: this does not take a prune option, that's a problem
-            playbook_update(mirror_path, inputs['url'])
+            # filed: https://github.com/ansible/ansible/issues/57143
+            playbook_update(mirror_path, inputs['url'], refspec='+refs/heads/*:refs/heads/*')
             repo = Repo(mirror_path)  # not sure if this is needed
         else:
             # This is the refmap needed for the bare clones, in other words, always
             repo.remotes.origin.fetch('+refs/heads/*:refs/heads/*', prune=True)
             # This is the refmap needed for the mirror clones
+            # using this is dangerously slow
             # repo.remotes.origin.fetch('+refs/*:refs/*', prune=True)
 
 
