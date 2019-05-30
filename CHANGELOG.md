@@ -19,6 +19,12 @@
    using the git module
  - added refspec as parameter to git module bare cloning
  - investigate timing of making a new head, and then cloning
+ - Add a step that tests whether or not arbitrary ref or commit is present
+   - tests refs, then tests commits
+     note: in actual implementation we will know in advance whether the
+     ref should be expected to exist, so that makes it a little different
+     from this, but commit check is still needed
+   - if not, then try fetching (for PR refs)
 
 ### Pending
 
@@ -26,7 +32,7 @@
 
 ### Abandoned
 
- - Add a step that tests whether or not the ref (arbitrary ref) is present
+ - (subpoints that were abandoned, the larger thing was implemented)
     - if not present, the default branch is cloned into the tmp dir
       THIS IS HIGHLY CONTROVERSIAL
     - perform a git clone from the remote into that repo in the tmp dir

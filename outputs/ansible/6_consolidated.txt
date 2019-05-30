@@ -1,0 +1,98 @@
+***** Analyizing ansible ******
+
+Starting timing for create_repo_object
+
+Starting timing for list_references_all_local_refs
+  timing for list_references_all_local_refs: 0.21558666229248047
+length of all_local_refs: 312
+  timing for create_repo_object: 0.2177734375
+
+Starting timing for fetching_origin
+
+ansible-playbook checkout.yml --connection local -i localhost, -e project_path=/tmp/mirrors/ansible -e scm_url=https://github.com/ansible/ansible.git -e force=False -e scm_clean=False -e bare=True -e refspec=+refs/heads/*:refs/heads/*
+
+PLAY [all] ****************************************************************************************************************************************************************************
+
+TASK [update project using git] *******************************************************************************************************************************************************
+ok: [localhost]
+
+PLAY RECAP ****************************************************************************************************************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=0
+
+  timing for fetching_origin: 5.078546524047852
+
+Starting timing for list_references_all_local_refs
+  timing for list_references_all_local_refs: 0.2656080722808838
+length of all_local_refs: 312
+branch names
+['devel', 'mazer_role_loader', 'release1.5.0', 'release1.5.1', 'release1.5.2', 'release1.5.3', 'release1.5.4', 'release1.5.5', 'release1.6.0', 'release1.6.1', 'release1.6.10', 'release1.6.2', 'release1.6.3', 'release1.6.4', 'release1.6.5', 'release1.6.6', 'release1.6.7', 'release1.6.8', 'release1.6.9', 'release1.7.0', 'release1.7.1', 'release1.7.2', 'release1.8.0', 'release1.8.1', 'release1.8.2', 'release1.8.3', 'release1.8.4', 'stable-1.9', 'stable-2.0', 'stable-2.0-network', 'stable-2.0.0.1', 'stable-2.1', 'stable-2.2', 'stable-2.3', 'stable-2.4', 'stable-2.5', 'stable-2.6', 'stable-2.7', 'stable-2.8', 'threading_instead_of_forking', 'threading_plus_forking', '0.0.1', '0.0.2', '0.01', '0.3', '0.3.1', '0.4', '0.4.1', '0.5', '0.6', '0.7', '0.7.1', '0.7.2', '0.8', 'v0.9', 'v1.0', 'v1.1', 'v1.2', 'v1.2.1', 'v1.2.2', 'v1.2.3', 'v1.3.0', 'v1.3.1', 'v1.3.2', 'v1.3.3', 'v1.3.4', 'v1.4.0', 'v1.4.1', 'v1.4.2', 'v1.4.3', 'v1.4.4', 'v1.4.5', 'v1.5.0', 'v1.5.1', 'v1.5.2', 'v1.5.3', 'v1.5.4', 'v1.5.5', 'v1.6.0', 'v1.6.1', 'v1.6.10', 'v1.6.2', 'v1.6.3', 'v1.6.4', 'v1.6.5', 'v1.6.6', 'v1.6.7', 'v1.6.8', 'v1.6.9', 'v1.7.0', 'v1.7.1', 'v1.7.2', 'v1.8.0', 'v1.8.1', 'v1.8.2', 'v1.8.3', 'v1.8.4', 'v1.9.0-0.1.rc1', 'v1.9.0-0.2.rc2', 'v1.9.0-1', 'v1.9.0-2', 'v1.9.0.1-1', 'v1.9.1-0.1.rc1', 'v1.9.1-0.2.rc2', 'v1.9.1-0.3.rc3', 'v1.9.1-0.4.rc4', 'v1.9.1-1', 'v1.9.2-0.1.rc1', 'v1.9.2-0.2.rc2', 'v1.9.2-1', 'v1.9.3-0.1.rc1', 'v1.9.3-0.2.rc2', 'v1.9.3-0.3.rc3', 'v1.9.3-1', 'v1.9.4-0.1.rc1', 'v1.9.4-0.2.rc2', 'v1.9.4-0.3.rc3', 'v1.9.4-1', 'v1.9.5-0.1.rc1', 'v1.9.5-1', 'v1.9.6-0.1.rc1', 'v1.9.6-1', 'v1_last', 'v2.0.0-0.1.alpha1', 'v2.0.0-0.2.alpha2', 'v2.0.0-0.3.beta1', 'v2.0.0-0.4.beta2', 'v2.0.0-0.5.beta3', 'v2.0.0-0.6.rc1', 'v2.0.0-0.7.rc2', 'v2.0.0-0.8.rc3', 'v2.0.0-0.9.rc4', 'v2.0.0.0-1', 'v2.0.0.1-1', 'v2.0.0.2-1', 'v2.0.1.0-0.1.rc1', 'v2.0.1.0-0.2.rc2', 'v2.0.1.0-1', 'v2.0.2.0-0.1.rc1', 'v2.0.2.0-0.2.rc2', 'v2.0.2.0-0.3.rc3', 'v2.0.2.0-0.4.rc4', 'v2.0.2.0-1', 'v2.1.0.0-0.1.rc1', 'v2.1.0.0-0.2.rc2', 'v2.1.0.0-0.3.rc3', 'v2.1.0.0-0.4.rc4', 'v2.1.0.0-1', 'v2.1.1.0-0.1.rc1', 'v2.1.1.0-0.2.rc2', 'v2.1.1.0-0.3.rc3', 'v2.1.1.0-0.4.rc4', 'v2.1.1.0-0.5.rc5', 'v2.1.1.0-1', 'v2.1.2.0-0.1.rc1', 'v2.1.2.0-0.2.rc2', 'v2.1.2.0-0.3.rc3', 'v2.1.2.0-0.4.rc4', 'v2.1.2.0-0.5.rc5', 'v2.1.2.0-1', 'v2.1.3.0-0.1.rc1', 'v2.1.3.0-0.2.rc2', 'v2.1.3.0-0.3.rc3', 'v2.1.3.0-1', 'v2.1.4.0-0.1.rc1', 'v2.1.4.0-0.2.rc2', 'v2.1.4.0-0.3.rc3', 'v2.1.4.0-1', 'v2.1.5.0-0.1.rc1', 'v2.1.5.0-0.2.rc2', 'v2.1.5.0-1', 'v2.1.6.0-0.1.rc1', 'v2.1.6.0-1', 'v2.2.0.0-0.1.rc1', 'v2.2.0.0-0.2.rc2', 'v2.2.0.0-0.3.rc3', 'v2.2.0.0-0.4.rc4', 'v2.2.0.0-1', 'v2.2.1.0-0.1.rc1', 'v2.2.1.0-0.2.rc2', 'v2.2.1.0-0.3.rc3', 'v2.2.1.0-0.4.rc4', 'v2.2.1.0-0.5.rc5', 'v2.2.1.0-1', 'v2.2.2.0-0.1.rc1', 'v2.2.2.0-0.2.rc2', 'v2.2.2.0-1', 'v2.2.3.0-0.1.rc1', 'v2.2.3.0-1', 'v2.3.0.0-0.1.rc1', 'v2.3.0.0-0.2.rc2', 'v2.3.0.0-0.3.rc3', 'v2.3.0.0-0.4.rc4', 'v2.3.0.0-0.5.rc5', 'v2.3.0.0-0.6.rc6', 'v2.3.0.0-1', 'v2.3.1.0-0.1.rc1', 'v2.3.1.0-0.2.rc2', 'v2.3.1.0-1', 'v2.3.2.0-0.1.rc1', 'v2.3.2.0-0.2.rc2', 'v2.3.2.0-0.3.rc3', 'v2.3.2.0-0.4.rc4', 'v2.3.2.0-0.5.rc5', 'v2.3.2.0-1', 'v2.3.3.0-0.1.rc1', 'v2.3.3.0-0.2.rc2', 'v2.3.3.0-0.3.rc3', 'v2.3.3.0-1', 'v2.3.4.0-0.1.rc1', 'v2.4.0.0-0.1.rc1', 'v2.4.0.0-0.2.rc2', 'v2.4.0.0-0.3.rc3', 'v2.4.0.0-0.4.rc4', 'v2.4.0.0-0.5.rc5', 'v2.4.0.0-1', 'v2.4.1.0-0.1.beta1', 'v2.4.1.0-0.2.beta2', 'v2.4.1.0-0.3.rc1', 'v2.4.1.0-0.4.rc2', 'v2.4.1.0-1', 'v2.4.2.0-0.1.beta1', 'v2.4.2.0-0.2.beta2', 'v2.4.2.0-0.3.beta3', 'v2.4.2.0-0.4.beta4', 'v2.4.2.0-0.5.rc1', 'v2.4.2.0-1', 'v2.4.3-0.3.beta3', 'v2.4.3.0-0.1.beta1', 'v2.4.3.0-0.2.beta2', 'v2.4.3.0-0.4.rc1', 'v2.4.3.0-0.5.rc2', 'v2.4.3.0-0.6.rc3', 'v2.4.3.0-1', 'v2.4.4-0.1.beta1', 'v2.4.4-0.2.rc1', 'v2.4.4.0-0.3.rc2', 'v2.4.4.0-1', 'v2.4.5.0-0.1.rc1', 'v2.4.5.0-1', 'v2.4.6.0-1', 'v2.5.0', 'v2.5.0a1', 'v2.5.0b1', 'v2.5.0b2', 'v2.5.0rc1', 'v2.5.0rc2', 'v2.5.0rc3', 'v2.5.1', 'v2.5.10', 'v2.5.11', 'v2.5.12', 'v2.5.13', 'v2.5.14', 'v2.5.15', 'v2.5.2', 'v2.5.3', 'v2.5.4', 'v2.5.5', 'v2.5.6', 'v2.5.7', 'v2.5.8', 'v2.5.9', 'v2.6.0', 'v2.6.0a1', 'v2.6.0a2', 'v2.6.0rc1', 'v2.6.0rc2', 'v2.6.0rc3', 'v2.6.0rc4', 'v2.6.0rc5', 'v2.6.1', 'v2.6.10', 'v2.6.11', 'v2.6.12', 'v2.6.13', 'v2.6.14', 'v2.6.15', 'v2.6.16', 'v2.6.17', 'v2.6.2', 'v2.6.3', 'v2.6.4', 'v2.6.5', 'v2.6.6', 'v2.6.7', 'v2.6.8', 'v2.6.9', 'v2.7.0', 'v2.7.0.a1', 'v2.7.0b1', 'v2.7.0rc1', 'v2.7.0rc2', 'v2.7.0rc3', 'v2.7.0rc4', 'v2.7.1', 'v2.7.10', 'v2.7.11', 'v2.7.2', 'v2.7.3', 'v2.7.4', 'v2.7.5', 'v2.7.6', 'v2.7.7', 'v2.7.8', 'v2.7.9', 'v2.8.0', 'v2.8.0a1', 'v2.8.0b1', 'v2.8.0rc1', 'v2.8.0rc2', 'v2.8.0rc3']
+
+Changes detected in refs/tags/branches:
+{
+  "stable-2.8": [
+    "19ffe970f7022fe78130bfea0803ae6f0a8ebdd5",
+    "2128e7c14f8143777ba135dbff9c03c6f4549b1a"
+  ]
+}
+
+
+Starting case: branch
+
+Starting timing for make_branch_checkout
+
+Starting timing for  check_branch_existence
+  timing for  check_branch_existence: 0.009225606918334961
+
+Starting timing for make_branch_checkout_checkout_time
+  timing for make_branch_checkout_checkout_time: 3.003267765045166
+  timing for make_branch_checkout: 3.0129480361938477
+Number of top-level files for branch: 36
+ head is detached: False
+
+
+Starting case: hash
+
+Starting timing for make_hash_checkout
+
+Starting timing for  check_hash_existence
+  timing for  check_hash_existence: 0.0008966922760009766
+
+Starting timing for make_hash_checkout_checkout_time
+  timing for make_hash_checkout_checkout_time: 4.534016370773315
+
+Starting timing for  delete_hash_tmp_branch
+  timing for  delete_hash_tmp_branch: 0.004359722137451172
+  timing for make_hash_checkout: 4.539620637893677
+Number of top-level files for hash: 27
+ head is detached: False
+
+
+Starting case: PR
+
+Starting timing for make_PR_checkout
+
+Starting timing for  check_PR_existence
+  timing for  check_PR_existence: 0.006788969039916992
+
+Starting timing for make_pr_checkout_fetch_time
+
+ansible-playbook checkout.yml --connection local -i localhost, -e project_path=/tmp/mirrors/ansible -e scm_url=https://github.com/ansible/ansible.git -e force=False -e scm_clean=False -e bare=True -e refspec=refs/pull/50671/head:awx_internal/ce1285be-faaa-48ed-938c-a986ac6626eb
+
+PLAY [all] ****************************************************************************************************************************************************************************
+
+TASK [update project using git] *******************************************************************************************************************************************************
+ok: [localhost]
+
+PLAY RECAP ****************************************************************************************************************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=0
+
+  timing for make_pr_checkout_fetch_time: 3.968780040740967
+
+Starting timing for make_PR_checkout_checkout_time
+  timing for make_PR_checkout_checkout_time: 1.5053460597991943
+
+Starting timing for  delete_PR_tmp_branch
+  timing for  delete_PR_tmp_branch: 0.004321575164794922
+  timing for make_PR_checkout: 5.485801696777344
+Number of top-level files for PR: 34
+ head is detached: False
