@@ -96,3 +96,37 @@ gives
 > ValueError: SHA b'dc587989c3c36560148429238bd19ac51163f6c6' could not be resolved, git returned: b'dc587989c3c36560148429238bd19ac51163f6c6 missing'
 
 This is perfectly fine.
+
+#### CLI options use
+
+We can get the differential impact of certain decisions by using some of the CLI
+flags. For instance, here's the timing of running `time python run.py ansible --clone-in-tmp`
+with a pre-existing repo:
+
+```
+real	0m28.274s
+user	0m16.730s
+sys	0m8.070s
+```
+
+Now the timings for just `time python run.py ansible`:
+
+```
+real	0m18.329s
+user	0m10.920s
+sys	0m5.120s
+```
+
+You can see that one method is simply faster (due to reducing the number
+of index items that need to be copied).
+
+Likewise, for `time python run.py ansible --python`
+
+```
+real	0m12.167s
+user	0m7.460s
+sys	0m2.320s
+```
+
+This effectively demonstrates the amount of overhead we add by running
+through the Ansible subprocess.
