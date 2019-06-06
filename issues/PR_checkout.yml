@@ -1,0 +1,9 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+      - name: update project using git
+        git:
+          dest: "/tmp/foo_dir"
+          repo: "https://github.com/ansible/test-playbooks.git"
+          version: "pull/62/head"  # PR exists, also, branch name "with_requirements" actually works
+          force: false
