@@ -1,0 +1,18 @@
+- hosts: all
+  gather_facts: false
+  connection: local
+  vars:
+    repo_dir: "/tmp/foo_dir"
+  tasks:
+    - name: Remove any existing directory from prior runs
+      file:
+        state: absent
+        path: "{{ repo_dir }}"
+
+    - name: update project using git
+      git:
+        dest: "{{ repo_dir }}"
+        repo: "https://github.com/ansible/test-playbooks.git"
+        # version: "pull/62/head"
+        force: false
+        refspec: +refs/pull/62/head:refs/remotes/origin/pull/62/head
